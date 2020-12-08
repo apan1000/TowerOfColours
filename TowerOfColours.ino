@@ -2,33 +2,23 @@
 #include <WiFiNINA.h>
 #include <ArduinoHttpClient.h>
 #include <ArduinoJson.h>
-#ifdef __AVR__
- #include <avr/power.h> // Required for 16 MHz Adafruit Trinket
-#endif
 
 #include "NeoPatterns.h"
 #include "arduino_secrets.h"
 
-// Which pin on the Arduino is connected to the NeoPixels?
-#define PIN        7 // On Trinket or Gemma, suggest changing this to 1
+#define PIN        7
+#define NUMPIXELS 60
 
-// How many NeoPixels are attached to the Arduino?
-#define NUMPIXELS 60 // Popular NeoPixel ring size
-
-// NeoPixel brightness, 0 (min) to 255 (max)
+// 0 (min) to 255 (max)
 #define BRIGHTNESS_DAY 12
 #define BRIGHTNESS_NIGHT 15
 
 #define RAINBOW_SPEED 400
 
-// When setting up the NeoPixel library, we tell it how many pixels,
-// and which pin to use to send signals. Note that for older NeoPixel
-// strips you might need to change the third parameter -- see the
-// strandtest example for more information on possible values.
 void onPatternComplete();
 NeoPatterns strip(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800, &onPatternComplete);
 
-///////please enter your sensitive data in the Secret tab/arduino_secrets.h
+///////please enter your sensitive data in arduino_secrets.h
 char ssid[] = SECRET_SSID; // your network SSID (name)
 char pass[] = SECRET_PASS; // your network password
 int status = WL_IDLE_STATUS; // the Wifi radio's status
@@ -62,7 +52,6 @@ void setup() {
   //   ; // wait for serial port to connect. Needed for native USB port only
   // }
 
-  // check for the WiFi module:
   if (WiFi.status() == WL_NO_MODULE) {
     Serial.println("Communication with WiFi module failed!");
     // don't continue
@@ -74,18 +63,13 @@ void setup() {
     Serial.println("Please upgrade the firmware");
   }
 
-  // attempt to connect to Wifi network:
   while (status != WL_CONNECTED) {
     Serial.print("Attempting to connect to WPA SSID: ");
     Serial.println(ssid);
-    // Connect to WPA/WPA2 network:
     status = WiFi.begin(ssid, pass);
-
-    // wait 5 seconds for connection:
     delay(5000);
   }
 
-  // you're connected now, so print out the data:
   Serial.print("You're connected to the network");
   printCurrentNet();
   printWifiData();
@@ -215,18 +199,15 @@ void deserializeJSON(const char* json) {
 }
 
 void printCurrentNet() {
-  // print the SSID of the network you're attached to:
   Serial.print("SSID: ");
   Serial.println(WiFi.SSID());
 
-  // print the received signal strength:
   long rssi = WiFi.RSSI();
   Serial.print("signal strength (RSSI):");
   Serial.println(rssi);
 }
 
 void printWifiData() {
-  // print your board's IP address:
   IPAddress ip = WiFi.localIP();
   Serial.print("IP Address: ");
   Serial.println(ip);
