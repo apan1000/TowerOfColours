@@ -24,8 +24,8 @@ char pass[] = SECRET_PASS; // your network password
 int status = WL_IDLE_STATUS; // the Wifi radio's status
 
 unsigned long lastConnectionTime = 0; // last time you connected to the server, in milliseconds
-const unsigned long getIntervalNight = 2L * 1000L;
-const unsigned long getIntervalDay = 60L * 60L * 1000L;
+const unsigned long getIntervalNight = 1400;
+const unsigned long getIntervalDay = 20L * 60L * 1000L;
 
 char server[] = SERVER; // Server address
 
@@ -48,9 +48,6 @@ void setup() {
   strip.RainbowCycle(RAINBOW_SPEED);
 
   Serial.begin(9600);
-  // while (!Serial) {
-  //   ; // wait for serial port to connect. Needed for native USB port only
-  // }
 
   if (WiFi.status() == WL_NO_MODULE) {
     Serial.println("Communication with WiFi module failed!");
@@ -63,12 +60,7 @@ void setup() {
     Serial.println("Please upgrade the firmware");
   }
 
-  while (status != WL_CONNECTED) {
-    Serial.print("Attempting to connect to WPA SSID: ");
-    Serial.println(ssid);
-    status = WiFi.begin(ssid, pass);
-    delay(5000);
-  }
+  connectToWifi();
 
   Serial.print("You're connected to the network");
   printCurrentNet();
@@ -76,6 +68,7 @@ void setup() {
 }
 
 void loop() {
+  checkWiFi();
   const unsigned long interval = millis() - lastConnectionTime;
 
   if (isDay) {
@@ -130,6 +123,38 @@ void setStripColors() {
 
 void onPatternComplete() {
     
+}
+
+void checkWiFi() {
+  status = WiFi.status();
+  if (status == WL_CONNECTION_LOST || status == WL_DISCONNECTED) {
+    connectToWifi();
+  }
+}
+
+void connectToWifi() {
+  while (status != WL_CONNECTED) {
+    Serial.print("Attempting to connect to WPA SSID: ");
+    Serial.println(ssid);
+    status = WiFi.begin(ssid, pass);
+    delay(5000);
+  }
+}
+
+void printCurrentNet() {
+  Serial.print("SSID: ");
+  Serial.println(WiFi.SSID());
+
+  long rssi = WiFi.RSSI();
+  Serial.print("signal strength (RSSI):");
+  Serial.println(rssi);
+}
+
+void printWifiData() {
+  IPAddress ip = WiFi.localIP();
+  Serial.print("IP Address: ");
+  Serial.println(ip);
+  Serial.println(ip);
 }
 
 void deserializeJSON(const char* json) {
@@ -196,20 +221,4 @@ void deserializeJSON(const char* json) {
   isDay = doc["isDay"];
   isBusy = doc["isBusy"];
   bool inCall = doc["inCall"];
-}
-
-void printCurrentNet() {
-  Serial.print("SSID: ");
-  Serial.println(WiFi.SSID());
-
-  long rssi = WiFi.RSSI();
-  Serial.print("signal strength (RSSI):");
-  Serial.println(rssi);
-}
-
-void printWifiData() {
-  IPAddress ip = WiFi.localIP();
-  Serial.print("IP Address: ");
-  Serial.println(ip);
-  Serial.println(ip);
 }
