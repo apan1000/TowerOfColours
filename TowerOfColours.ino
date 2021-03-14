@@ -30,7 +30,7 @@ int status = WL_IDLE_STATUS; // the Wifi radio's status
 
 unsigned long lastConnectionTime = 0; // last time you connected to the server, in milliseconds
 const unsigned long getIntervalNight = 1000;
-const unsigned long getIntervalDay = 20L * 60L * 1000L;
+const unsigned long getIntervalDay = 2L * 60L * 1000L;
 
 WiFiClient wifiClient;
 
